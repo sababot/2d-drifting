@@ -21,7 +21,7 @@ var up = false;
 var down = false;
 let jump = 0;
 let rotation = 0;
-let rotation2 = 0;
+let score = 0;
 
 let secondsPassed = 0;
 let oldTimeStamp = 0;
@@ -210,6 +210,13 @@ function Objective(x, y, life_time){
         }
 
         else{
+            score = 0;
+
+            playerVariable.x = canvas.width / 2;
+            playerVariable.y = canvas.height / 2;
+            playerVariable.rotation = 0;
+            playerVariable.diff = 0;
+
             this.spawn();
         }
     }
@@ -219,7 +226,8 @@ function Objective(x, y, life_time){
     }
 
     this.die = function(){
-        this.life_time = 0;
+        this.spawn();
+        score++;
     }
 }
 
@@ -279,6 +287,12 @@ function animate(timeStamp){
     // GameObjects
     objectives[objectives.length - 1].draw();
     playerVariable.draw();
+
+    c.font = "50px monospace";
+    c.fillText(score, canvas.width / 2 - 35, 75);
+
+    c.font = "15px monospace";
+    c.fillText("reach the each objective to not die and increase score", canvas.width / 2 - 250, canvas.height - 25);
 
     c.restore();
 }
