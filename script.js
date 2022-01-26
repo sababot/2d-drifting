@@ -46,6 +46,7 @@ function Car(x, y, infected){
     this.drift_rotation = 0;
     this.speed_rate = 0;
     this.diff = 0;
+    this.diff_change = 0;
 
     this.draw = function(){
         /* Graphics
@@ -140,7 +141,7 @@ function Car(x, y, infected){
         }
 
         else if (this.diff > this.rotation){
-            this.diff -= 2.25;
+            this.diff += -2.25;
         }
 
         playerVariable.dy = 0;
@@ -153,10 +154,22 @@ function Car(x, y, infected){
         }
         ////////////////
         else if (up == true){
-            if (this.speed_rate < 5){
+            if (this.speed_rate < 10){
                 this.speed_rate += 0.25;
             }
         }
+        
+        if (this.speed_rate == 0){
+            this.diff = this.rotation;
+        }
+
+        ///////////////
+
+        if (Math.sqrt((this.x - objectives[objectives.length - 1].x) * (this.x - objectives[objectives.length - 1].x) + (this.y - objectives[objectives.length - 1].y) * (this.y - objectives[objectives.length - 1].y)) < 50){
+            objectives[objectives.length - 1].die();
+        }
+
+        ///////////////
 
         playerVariable.dx = Math.cos((this.diff - 90) * (Math.PI / 180)) * this.speed_rate;
         playerVariable.dy = Math.sin((this.diff - 90) * (Math.PI / 180)) * this.speed_rate;
@@ -180,6 +193,38 @@ function Car(x, y, infected){
         this.y += this.dy;
     }
 }
+
+function Objective(x, y, life_time){
+    this.x = x;
+    this.y = y;
+    this.life_time = life_time;
+
+    this.draw = function(){
+        if (this.life_time > 2.5){
+            c.beginPath();
+            c.arc(this.x, this.y, this.life_time, 0, 2 * Math.PI);
+            c.fillStyle = "#fff";
+            c.fill();
+
+            this.life_time -= 0.1;
+        }
+
+        else{
+            this.spawn();
+        }
+    }
+
+    this.spawn = function(){
+        objectives.push(new Objective(Math.floor(Math.random() * canvas.width), Math.floor(Math.random() * canvas.height), 30));
+    }
+
+    this.die = function(){
+        this.life_time = 0;
+    }
+}
+
+var objectives = [];
+objectives.push(new Objective(Math.floor(Math.random() * canvas.width), Math.floor(Math.random() * canvas.height), 30));
 
 var playerVariable = new Car(canvas.width / 2, canvas.height / 2);
 
@@ -232,6 +277,7 @@ function animate(timeStamp){
     c.clearRect(0, 0, canvas.width, canvas.height);
 
     // GameObjects
+    objectives[objectives.length - 1].draw();
     playerVariable.draw();
 
     c.restore();
